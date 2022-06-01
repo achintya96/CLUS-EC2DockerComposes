@@ -1,28 +1,24 @@
 version: '3'
 services:
-  backend:
-    image: sabaroof/ciscolive2022:backend
-    environment:
-      - FLASK_SERVER_PORT=9091
+  mongo:
+    image: mongo
     volumes:
-      - ./flask:/src
-    depends_on:
-      - mongo
+      - ./init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
     extra_hosts:
+      - "backend:150.0.2.121"
       - "web:150.0.1.214"
-      - "mongo:150.0.3.38"
     networks:
-      backend:
-        ipv4_address: 150.0.2.121
+      db:
+        ipv4_address: 150.0.3.38
 
 networks:
-  backend:
+  db:
     driver: ipvlan
     ipam:
       driver: default
       config:
-        - subnet: 150.0.2.0/24
+        - subnet: 150.0.3.0/24
     driver_opts:
       ipvlan_mode: l2
       parent: eth0
-    name: backend_net
+    name: db_net
