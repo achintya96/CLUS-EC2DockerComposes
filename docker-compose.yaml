@@ -1,0 +1,32 @@
+version: '3'
+services:
+  web:
+    image: nginx
+    volumes:
+      - ./nginx/nginx.conf:/tmp/nginx.conf
+    environment:
+      - FLASK_SERVER_ADDR=backend:9091
+    command: /bin/bash -c "envsubst < /tmp/nginx.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    ports:
+      - 80:80
+    extra_hosts:
+      - "backend:150.0.2.121"
+      - "mongo:150.0.3.38"
+    depends_on:
+      - backend
+    networks:
+      frontend:
+        ipv4_address: 150.0.1.214
+
+
+networks:
+  frontend:
+    driver: ipvlan
+    ipam:
+      driver: default
+      config:
+        - subnet: 150.0.1.0/24
+    driver_opts:
+      ipvlan_mode: l2
+      parent: eth0
+    name: frontend_net
