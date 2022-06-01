@@ -1,23 +1,29 @@
 version: '3'
 services:
-  mongo:
-    image: mongo
+  web:
+    image: nginx
     volumes:
-      - ./init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
+      - ./nginx/nginx.conf:/tmp/nginx.conf
+    environment:
+      - FLASK_SERVER_ADDR=backend:9091
+    command: /bin/bash -c "envsubst < /tmp/nginx.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    ports:
+      - 80:80
     extra_hosts:
-      - "backend:150.0.2.121"
-      - "web:150.0.1.214"
+      - "backend:150.0.2.6"
+      - "mongo:150.0.3.6"
     networks:
-      db:
-        ipv4_address: 150.0.3.38
+      frontend:
+        ipv4_address: 150.0.1.6
+
 
 networks:
-  db:
+  frontend:
     driver: ipvlan
     ipam:
       driver: default
       config:
-        - subnet: 150.0.3.0/24
+        - subnet: 150.0.1.0/24
     driver_opts:
       ipvlan_mode: l2
-      parent: eth0
+      parent: eth1
