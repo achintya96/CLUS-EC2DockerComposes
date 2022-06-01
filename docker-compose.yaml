@@ -21,4 +21,3 @@ networks:
     driver_opts:
       ipvlan_mode: l2
       parent: eth0
-    name: db_net
