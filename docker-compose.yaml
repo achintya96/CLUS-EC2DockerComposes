@@ -1,32 +1,28 @@
 version: '3'
 services:
-  web:
-    image: nginx
-    volumes:
-      - ./nginx/nginx.conf:/tmp/nginx.conf
+  backend:
+    image: sabaroof/ciscolive2022:backend
     environment:
-      - FLASK_SERVER_ADDR=backend:9091
-    command: /bin/bash -c "envsubst < /tmp/nginx.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
-    ports:
-      - 80:80
-    extra_hosts:
-      - "backend:150.0.2.121"
-      - "mongo:150.0.3.38"
+      - FLASK_SERVER_PORT=9091
+    volumes:
+      - ./flask:/src
     depends_on:
-      - backend
+      - mongo
+    extra_hosts:
+      - "web:150.0.1.214"
+      - "mongo:150.0.3.38"
     networks:
-      frontend:
-        ipv4_address: 150.0.1.214
-
+      backend:
+        ipv4_address: 150.0.2.121
 
 networks:
-  frontend:
+  backend:
     driver: ipvlan
     ipam:
       driver: default
       config:
-        - subnet: 150.0.1.0/24
+        - subnet: 150.0.2.0/24
     driver_opts:
       ipvlan_mode: l2
       parent: eth0
-    name: frontend_net
+    name: backend_net
